@@ -1,35 +1,39 @@
 # 0x01 Linux 系统中 FTP 服务安全防护
 创建 test 普通用户并设置密码，修改登录 shell：
+```
 //bash
 useradd test
 passwd test
 usermod -s /bin/sh test
-
+```
 禁用 test 用户：
+```
 //bash
 usermod -L test
-
+```
 修改 /etc/vstpd.conf 配置文件：
-关闭匿名用户：在配置文件中找到 anonymous_enable=YES，改为 
+```
+#关闭匿名用户：在配置文件中找到 anonymous_enable=YES，改为 
 anonymous_enable=NO
-限制本地用户只能在自己的家目录中活动：添加或修改
+#限制本地用户只能在自己的家目录中活动：添加或修改
 local_enable=YES 
 chroot_local_user=YES。
-设置每个 IP 的最大客户端连接数目为 5：添加或修改 
+#设置每个 IP 的最大客户端连接数目为 5：添加或修改 
 max_per_ip=5。
-设置服务监听端口为 2121：找到 listen_port=21，改为
+#设置服务监听端口为 2121：找到 listen_port=21，改为
 listen_port=2121
-设置客户端同时最大连接数为 100：添加或修改
+#设置客户端同时最大连接数为 100：添加或修改
 max_clients=100
-设置匿名用户的家目录为 /ftphome：添加或修改
+#设置匿名用户的家目录为 /ftphome：添加或修改
 anon_root=/ftphome
-禁止所有用户进行写操作：找到 write_enable=YES，改为
+#禁止所有用户进行写操作：找到 write_enable=YES，改为
 write_enable=NO
-
+```
 重启vsftpd服务使配置生效
+``
 //bash
 systemctl restart vsftpd
-
+``
 
 
 # 0x02 url-rot13-base64 解密算法：
@@ -109,80 +113,94 @@ SQL Server 数据库的默认服务端口为 1433。
 以管理员账户登录当前 Windows 系统，在系统桌面上创建考试目录 “test”，并在该目录下创建文件 “1.txt” 和 “2.txt”。
 
 使用 Sdelete 工具删除文件 “1.txt” 的命令：
+```
 //plaintext
 sdelete 1.txt
-
+```
 使用 Sdelete 工具删除目录 “test” 并进行 5 次覆盖的命令：
+```
 //plaintext
 sdelete -p 5 -r test
-
+``
 使用 Sdelete 工具清除 Y 盘的空闲空间并进行 2 次覆盖的命令（该操作不允许实际执行）：
+``
 //plaintext
 sdelete -p 2 -z Y: 
-
+```
 
 # 0x08 Linux 系统中文件服务防护
 创建 test 普通用户并设置密码，修改登录 shell：
+```
 //bash
 useradd test
 passwd test
 usermod -s /bin/sh test
-
+```
 禁用 test 用户：
+```
 //bash
 usermod -L test
-
+```
 创建系统账户 smbuser 并添加为 smb 用户：
+```
 //bash
 useradd smbuser
 smbpasswd -a smbuser
-
+```
 创建 /smbshare 目录：
+```
 //bash
 mkdir /smbshare
-
+```
 修改 /etc/samba/smb.conf 配置文件：
 创建 share1 共享：在配置文件末尾添加以下内容
-
+```
 [share1]
 comment = SecurityShare
 path = /smbshare
 guest ok = no
 valid users = smbuser
 read only = yes
-
+```
 开启 smb 服务：
+```
 //bash
 systemctl start smb
-
+```
 使用 smbclient 命令配合 -L 参数查看当前系统 smb 服务的共享情况：
+```
 //bash
 smbclient -L localhost
-
+```
 
 # 0x09 Linux 系统密码策略和用户安全防护
 查看当前系统中的用户：
+```
 //bash
 cat /etc/passwd
-
+```
 新建 test 用户并添加到超级管理员组：
+```
 //bash
 useradd test
 usermod -aG wheel test
-
+```
 禁用 Administrator 与 guest 用户：
+```
 //bash
 usermod -L Administrator
 usermod -L guest
-
+```
 设置密码最小长度为 8 位，密码必须符包含大小写字符与数字的策略：在 /etc/pam.d/system-auth 或 /etc/pam.d/password-auth 文件中添加或修改以下内容
+```
 //plaintext
 password requisite pam_cracklib.so minlen=8 lcredit=-1 ucredit=-1 dcredit=-1 ocredit=-1
-
+```
 三次登录无效用户锁定，锁定时间为 10 分钟：在 /etc/pam.d/login 文件中添加或修改以下内容
+```
 //plaintext
 auth required pam_tally2.so onerr=fail deny=3 unlock_time=600
-
+```
 
 # 0x10 系统日志分析
 登入虚拟机（Win7_x64），提取 2021.09.12 05:15:00 - 2021.09.12 05:20:00 时间段的远程桌面登录日志，将过滤的日志存储为 evtx 格式日志：
